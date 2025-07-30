@@ -1,0 +1,31 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[functions]
+  directory = "netlify/functions"
+
+# API routes
+[[redirects]]
+  from = "/api/shorten"
+  to = "/.netlify/functions/shorten"
+  status = 200
+
+# Short URL redirects (exclude static files and API)
+[[redirects]]
+  from = "/:shortCode"
+  to = "/.netlify/functions/redirect/:shortCode"
+  status = 200
+  conditions = {Role = ["visitor"]}
+  force = false
+
+# Fallback to index for SPA routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[dev]
+  command = "npm start"
+  port = 8888
+

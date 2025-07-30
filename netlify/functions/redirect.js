@@ -26,8 +26,12 @@ async function getUrlStorage() {
 }
 
 exports.handler = async (event, context) => {
+  // Get the short code from the path parameter
   const shortCode = event.path.split('/').pop();
+  console.log('Redirect requested for code:', shortCode);
+  
   const urlStorage = await getUrlStorage();
+  console.log('Available URLs:', Object.keys(urlStorage));
 
   if (urlStorage[shortCode]) {
     return {

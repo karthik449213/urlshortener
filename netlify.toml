@@ -11,21 +11,14 @@
   to = "/.netlify/functions/shorten"
   status = 200
 
-# Short URL redirects (exclude static files and API)
+# Short URL redirects - catch before SPA fallback
 [[redirects]]
   from = "/:shortCode"
-  to = "/.netlify/functions/redirect/:shortCode"
+  to = "/.netlify/functions/redirect"
   status = 200
-  conditions = {Role = ["visitor"]}
-  force = false
 
-# Fallback to index for SPA routing
+# Fallback to index for everything else
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[dev]
-  command = "npm start"
-  port = 8888
-

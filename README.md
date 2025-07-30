@@ -1,3 +1,52 @@
+# URL Shortener for Netlify
+
+A simple URL shortener that's ready to deploy on Netlify with persistent storage.
+
+## Quick Deployment
+
+### Option 1: Using JSONBin.io (Recommended)
+
+1. **Create a JSONBin account:**
+   - Go to [jsonbin.io](https://jsonbin.io) and create a free account
+   - Create a new **private** bin with this initial content:
+     ```json
+     {"initialized": true}
+     ```
+   - Note your bin URL and API key
+
+2. **Deploy to Netlify:**
+   ```bash
+   npm install
+   npm run build
+   ```
+   
+   Then either:
+   - Use Netlify CLI: `netlify deploy --prod`
+   - Or drag & drop the entire project folder to [netlify.com](https://netlify.com)
+
+3. **Add environment variables in Netlify:**
+   - Go to your Netlify site settings → Environment variables
+   - Add: `JSONBIN_URL` = `https://api.jsonbin.io/v3/b/YOUR_BIN_ID`
+   - Add: `JSONBIN_KEY` = `your_api_key`
+
+### Option 2: Using Supabase (More robust)
+
+1. Create a [Supabase](https://supabase.com) account and project
+2. Create a table called `urls` with columns: `id`, `short_code`, `original_url`
+3. Add environment variables: `SUPABASE_URL` and `SUPABASE_ANON_KEY`
+
+## Features
+
+- ✅ Shorten long URLs
+- ✅ Custom short codes
+- ✅ Duplicate URL detection
+- ✅ Persistent storage
+- ✅ 301 redirects
+
+## That's it!
+
+Your URL shortener is now live and ready to use.
+
 # URL Shortener
 
 A simple, elegant URL shortener web application built with Flask.

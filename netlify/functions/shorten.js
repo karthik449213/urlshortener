@@ -1,6 +1,48 @@
-// Simple in-memory storage for demo purposes
-// In production, you'd want to use a database like FaunaDB, Supabase, or Airtable
-const urlStorage = new Map();
+const fetch = require('node-fetch');
+
+// JSONBin.io storage functions
+const JSONBIN_URL = process.env.JSONBIN_URL || 'https://api.jsonbin.io/v3/b/67a1f4f7ad19ca34f8dc3456'; // You'll need to create your own bin
+const JSONBIN_KEY = process.env.JSONBIN_KEY; // Optional: for private bins
+
+async function getUrlStorage() {
+  try {
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    if (JSONBIN_KEY) {
+      headers['X-Master-Key'] = JSONBIN_KEY;
+    }
+    
+    const response = await fetch(JSONBIN_URL, { headers });
+    if (response.ok) {
+      const data = await response.json();
+      return data.record || {};
+    }
+    return {};
+  } catch (error) {
+    console.error('Error fetching storage:', error);
+    return {};
+  }
+}
+
+async function saveUrlStorage(storage) {
+  try {
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    if (JSONBIN_KEY) {
+      headers['X-Master-Key'] = JSONBIN_KEY;
+    }
+    
+    await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify(storage)
+    });
+  } catch (error) {
+    console.error('Error saving storage:', error);
+  }
+}
 
 function generateShortCode(length = 6) {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -58,9 +100,10 @@ exports.handler = async (event, context) => {
 
     const urlStorage = await getUrlStorage();
 
+    // Check if URL already exists
     for (const [code, url] of Object.entries(urlStorage)) {
       if (url === originalUrl) {
-        const shortUrl = `${event.headers.origin || 'https://your-site.netlify.app'}/${code}`;
+        const shortUrl = `https://${event.headers.host}/${code}`;
         return {
           statusCode: 200,
           headers,
@@ -69,14 +112,17 @@ exports.handler = async (event, context) => {
       }
     }
 
+    // Generate new short code
     let shortCode;
     do {
       shortCode = generateShortCode();
     } while (urlStorage[shortCode]);
 
-    await saveUrlMapping(shortCode, originalUrl);
+    // Store the mapping
+    urlStorage[shortCode] = originalUrl;
+    await saveUrlStorage(urlStorage);
 
-    const shortUrl = `${event.headers.origin || 'https://your-site.netlify.app'}/${shortCode}`;
+    const shortUrl = `https://${event.headers.host}/${shortCode}`;
     
     return {
       statusCode: 200,
